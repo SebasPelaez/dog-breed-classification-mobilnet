@@ -103,6 +103,5 @@ class MobilNet_Architecture(tf.keras.models.Model):
     gap = self.global_average_pool(dw_con8)
     fc = self.fully_connected(gap)
     output = self.activation_fully_connected(fc)
-    
 
     return output

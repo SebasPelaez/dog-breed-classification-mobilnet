@@ -18,3 +18,12 @@ test_mat_file: 'test_list.mat'
 training_data: 'training.txt'
 validation_data: 'validation.txt'
 test_data: 'test.txt'
+
+# Data configuration
+shuffle: True
+shuffle_buffer: 4
+
+# Parameters that may affect training
+batch_size: 20
+learning_rate: 0.001
+max_steps: 500
