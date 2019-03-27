@@ -101,7 +101,66 @@ class MobilNet_Architecture(tf.keras.models.Model):
     dw_con8 = self.depthwise_block8(dw_con7, training=training)
     
     gap = self.global_average_pool(dw_con8)
-    fc = self.fully_connected(gap)
-    output = self.activation_fully_connected(fc)
+    output = self.fully_connected(gap)
 
     return output
+
+def preprocess_image(x):
+  return tf.cast(x, tf.float32) / 255
+
+def model_fn(features, labels, mode, params):
+
+  training = mode == tf.estimator.ModeKeys.TRAIN
+
+  preprocessed_images = preprocess_image(features['image'])
+  batch_label = labels
+
+  model = MobilNet_Architecture(width_multiplier=params['width_multiplier'])
+  logits = model(preprocessed_images, training=training)
+
+  epsilon = tf.constant(1e-8)
+  logits = logits + epsilon 
+
+  print('********************',logits,logits.shape)
+
+  y_pred = tf.argmax(input=logits, axis=-1)
+  predictions = {
+    "classes": y_pred,
+    "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
+  }
+
+  if mode == tf.estimator.ModeKeys.PREDICT:
+    return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
+
+  xentropy = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+
+    #loss = xentropy
+  loss = xentropy + tf.losses.get_regularization_loss()
+
+  eval_metric_ops = {
+    "accuracy": tf.metrics.accuracy(labels=labels, predictions=predictions["classes"])
+  }
+
+  tf.summary.scalar('accuracy', tf.metrics.accuracy(labels, y_pred)[1])
+  
+  if mode == tf.estimator.ModeKeys.EVAL:
+    return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=eval_metric_ops)
+  
+  if mode == tf.estimator.ModeKeys.TRAIN:
+    
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    with tf.control_dependencies(update_ops):
+      optimizer = tf.train.AdamOptimizer(
+        learning_rate=params['learning_rate'],
+        beta1=0.9, 
+        beta2=0.999, 
+        epsilon=1e-08, 
+        use_locking=False
+      )
+      
+      train_op = optimizer.minimize(
+        loss=loss,
+        global_step=tf.train.get_global_step()
+      )
+
+    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
