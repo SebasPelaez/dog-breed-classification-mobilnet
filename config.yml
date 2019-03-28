@@ -24,9 +24,9 @@ shuffle: True
 shuffle_buffer: 4
 
 # Parameters that may affect training
-batch_size: 1
-learning_rate: 0.00001
-max_steps: 500
+batch_size: 10
+learning_rate: 0.001
+max_steps: 5000
 width_multiplier: 1
 
 # Logging and summaries 

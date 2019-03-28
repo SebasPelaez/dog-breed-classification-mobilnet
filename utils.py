@@ -17,6 +17,6 @@ def load_id_label_map(params):
   with open(label_json_path, 'r') as file:
     label_dict = json.load(file) 
   
-  labels_json_dict = {k+1:v for k,v in enumerate(label_dict)}
+  labels_json_dict = {k:v for k,v in enumerate(label_dict)}
 
   return labels_json_dict

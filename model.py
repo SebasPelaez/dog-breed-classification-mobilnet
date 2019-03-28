@@ -77,7 +77,6 @@ class MobilNet_Architecture(tf.keras.models.Model):
     
     self.global_average_pool = tf.keras.layers.GlobalAveragePooling2D()
     self.fully_connected = tf.keras.layers.Dense(units = 120)
-    self.activation_fully_connected = tf.keras.layers.Activation('relu')
         
   def call(self, inputs, training=None):
 
@@ -118,11 +117,6 @@ def model_fn(features, labels, mode, params):
   model = MobilNet_Architecture(width_multiplier=params['width_multiplier'])
   logits = model(preprocessed_images, training=training)
 
-  epsilon = tf.constant(1e-8)
-  logits = logits + epsilon 
-
-  print('********************',logits,logits.shape)
-
   y_pred = tf.argmax(input=logits, axis=-1)
   predictions = {
     "classes": y_pred,
@@ -134,7 +128,6 @@ def model_fn(features, labels, mode, params):
 
   xentropy = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
-    #loss = xentropy
   loss = xentropy + tf.losses.get_regularization_loss()
 
   eval_metric_ops = {

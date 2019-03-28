@@ -31,12 +31,25 @@ def input_fn(sources, train, params):
   def resize_image(image, label):
 
     resized_images = tf.image.resize_images( 
-        images = image,
-        size = [224, 224],
-        method=tf.image.ResizeMethod.NEAREST_NEIGHBOR
-        )
+      images = image,
+      size = [224, 224],
+      method=tf.image.ResizeMethod.NEAREST_NEIGHBOR
+    )
 
     return resized_images, label
+
+  def verify_channels(image, label):
+
+    k = tf.expand_dims(image,axis=0)
+    map_tf = tf.map_fn(fn=ff, elems=k,dtype=tf.int32,infer_shape=True, parallel_iterations=6)
+
+    image = tf.cond(
+      tf.not_equal(image.get_shape()[-1], 3),
+      true_fn = lambda: image[:,:,:3],
+      false_fn = lambda: image
+    )
+    
+    return image, label
 
 
   image_list, label_list = zip(*sources)
@@ -51,6 +64,7 @@ def input_fn(sources, train, params):
 
   data_set = data_set.map(parse_image, num_parallel_calls=4)
   data_set = data_set.map(resize_image, num_parallel_calls=4)
+  data_set = data_set.map(verify_channels, num_parallel_calls=4)
 
   if train:
     data_set = data_set.shuffle(buffer_size=params['shuffle_buffer'])

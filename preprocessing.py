@@ -42,7 +42,7 @@ def make_id_label_map(params):
     for numeric_label,string_label in enumerate(os.listdir(params['data_dir_images'])):
       index_of = string_label.index('-')
       label = string_label[index_of+1:]
-      id_label_map[label] = numeric_label+1
+      id_label_map[label] = numeric_label
     
     with open(labels_json_path,'w') as file:
       json.dump(id_label_map,file)
@@ -51,9 +51,11 @@ def split_data(params):
 
   train_dataset_mat_path = os.path.join(params['data_dir_list'],params['train_mat_file'])
   train_dataset_mat = scipy.io.loadmat(train_dataset_mat_path)
+  train_dataset_mat['labels'] = train_dataset_mat['labels'] - 1 
 
   test_dataset_mat_path = os.path.join(params['data_dir_list'],params['test_mat_file'])
   test_dataset_mat = scipy.io.loadmat(test_dataset_mat_path)
+  test_dataset_mat['labels'] = test_dataset_mat['labels'] - 1
 
   training_dev_df = _make_data_frame(file_mat=train_dataset_mat)
 
