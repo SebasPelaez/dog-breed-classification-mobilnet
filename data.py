@@ -20,6 +20,29 @@ def _sources(params, mode='training'):
         
   return data
 
+def flip_left_right(x):
+  x = tf.image.random_flip_left_right(x)
+  return x
+
+def flip_up_down(x):
+  x = tf.image.random_flip_up_down(x)
+  return x
+
+def rotate(x):
+  return tf.image.rot90(x, tf.random_uniform(shape=[], minval=0, maxval=4, dtype=tf.int32))
+
+def color_hue(x):
+  return tf.image.random_hue(x, 0.08)
+
+def color_saturation(x):
+  return tf.image.random_saturation(x, 0.6, 1.6)
+
+def color_brightness(x):
+  return tf.image.random_brightness(x, 0.05)
+
+def color_contrast(x):
+  return tf.image.random_contrast(x, 0.7, 1.3)
+
 def input_fn(sources, train, params):
 
   def parse_image(filename, label):
@@ -40,9 +63,6 @@ def input_fn(sources, train, params):
 
   def verify_channels(image, label):
 
-    k = tf.expand_dims(image,axis=0)
-    map_tf = tf.map_fn(fn=ff, elems=k,dtype=tf.int32,infer_shape=True, parallel_iterations=6)
-
     image = tf.cond(
       tf.not_equal(image.get_shape()[-1], 3),
       true_fn = lambda: image[:,:,:3],
@@ -62,9 +82,15 @@ def input_fn(sources, train, params):
 
   data_set = tf.data.Dataset.zip((image_data_set,label_data_set))
 
+  # Add augmentations
+  augmentations = [flip_left_right, flip_up_down, rotate, color_hue, color_brightness, color_contrast, color_saturation]
+
   data_set = data_set.map(parse_image, num_parallel_calls=4)
   data_set = data_set.map(resize_image, num_parallel_calls=4)
   data_set = data_set.map(verify_channels, num_parallel_calls=4)
+
+  for f in augmentations:
+    data_set = data_set.map(lambda x,y: (tf.cond(tf.random_uniform([], 0, 1) > 0.75, lambda: f(x), lambda: x),y), num_parallel_calls=4)
 
   if train:
     data_set = data_set.shuffle(buffer_size=params['shuffle_buffer'])
