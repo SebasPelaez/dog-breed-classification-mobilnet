@@ -4,6 +4,7 @@ import scipy.io
 import tarfile
 import wget
 
+import numpy as np
 import pandas as pd
 
 import utils
@@ -58,14 +59,23 @@ def split_data(params):
   test_dataset_mat['labels'] = test_dataset_mat['labels'] - 1
 
   training_dev_df = _make_data_frame(file_mat=train_dataset_mat)
+  test_df = _make_data_frame(file_mat=test_dataset_mat)
+
+  if params['num_classes'] < 120:
+    classes = np.arange(params['num_classes'])
+
+    training_dev_filter = training_dev_df['labels'].isin(classes)
+    training_dev_df = training_dev_df[training_dev_filter]
+
+    test_filter = test_df['labels'].isin(classes)
+    test_df = test_df[test_filter]
 
   training_df = training_dev_df.sample(frac = 0.85)
   validation_df = training_dev_df.drop(training_df.index)
 
   training_df.to_csv(os.path.join(params['data_dir'],params['training_data']), header=None, index=None, sep='\t')
   validation_df.to_csv(os.path.join(params['data_dir'],params['validation_data']), header=None, index=None, sep='\t')
-
-  test_df = _make_data_frame(file_mat=test_dataset_mat)
+  
   test_df.to_csv(os.path.join(params['data_dir'],params['test_data']), header=None, index=None, sep='\t')
 
 def _make_lists(file_mat):
@@ -84,7 +94,7 @@ def _make_data_frame(file_mat):
   data_in_list = _make_lists(file_mat)
   data_dict = {'images': data_in_list[0], 'labels': data_in_list[1]}
   df = pd.DataFrame.from_dict(data_dict)
-  df = df.sample(frac=1).reset_index(drop=True)
+  #df = df.sample(frac=1).reset_index(drop=True)
   
   return df
 

@@ -28,6 +28,8 @@ batch_size: 10
 learning_rate: 0.001
 max_steps: 10000
 width_multiplier: 1
+depth_multiplier: 1
+num_classes: 5
 
 # Logging and summaries 
 eval_steps: 10

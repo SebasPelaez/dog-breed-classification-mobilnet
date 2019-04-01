@@ -4,7 +4,7 @@ import utils
 
 class DepthwiseSeparableConvolution(tf.keras.models.Model):
   
-  def __init__(self,conv_filters,conv_strides,width_multiplier, **kwargs):
+  def __init__(self,conv_filters,conv_strides,width_multiplier,depth_multiplier, **kwargs):
     super(DepthwiseSeparableConvolution, self).__init__(**kwargs)
     
     self.dw_filter = conv_filters[0]
@@ -14,6 +14,7 @@ class DepthwiseSeparableConvolution(tf.keras.models.Model):
     self.pw_stride = conv_strides[1]
     
     self.width_multiplier = width_multiplier
+    self.depth_multiplier = depth_multiplier
     
   def build(self, input_shape):
     
@@ -24,7 +25,7 @@ class DepthwiseSeparableConvolution(tf.keras.models.Model):
         kernel_size=3,
         strides=self.dw_stride,
         padding='same',
-        depth_multiplier=self.width_multiplier)
+        depth_multiplier=self.depth_multiplier)
     self.bn_dw = tf.keras.layers.BatchNormalization()
     self.activation_dw = tf.keras.layers.Activation('relu')
 
@@ -50,9 +51,11 @@ class DepthwiseSeparableConvolution(tf.keras.models.Model):
 
 class MobilNet_Architecture(tf.keras.models.Model):
   
-  def __init__(self,width_multiplier, **kwargs):
+  def __init__(self,width_multiplier,depth_multiplier,num_classes, **kwargs):
     super(MobilNet_Architecture, self).__init__(**kwargs)
     self.width_multiplier = width_multiplier
+    self.depth_multiplier = depth_multiplier
+    self.num_classes = num_classes
         
   def build(self, input_shape):
 
@@ -60,23 +63,65 @@ class MobilNet_Architecture(tf.keras.models.Model):
     self.bn1 = tf.keras.layers.BatchNormalization()
     self.activation1 = tf.keras.layers.Activation('relu')
     
-    self.depthwise_block1 = DepthwiseSeparableConvolution(conv_filters=(32,64),conv_strides=(1,1),width_multiplier=self.width_multiplier)
-    self.depthwise_block2 = DepthwiseSeparableConvolution(conv_filters=(64,128),conv_strides=(2,1),width_multiplier=self.width_multiplier)
-    self.depthwise_block3 = DepthwiseSeparableConvolution(conv_filters=(128,128),conv_strides=(1,1),width_multiplier=self.width_multiplier)
-    self.depthwise_block4 = DepthwiseSeparableConvolution(conv_filters=(128,256),conv_strides=(2,1),width_multiplier=self.width_multiplier)
-    self.depthwise_block5 = DepthwiseSeparableConvolution(conv_filters=(256,256),conv_strides=(1,1),width_multiplier=self.width_multiplier)
-    self.depthwise_block6 = DepthwiseSeparableConvolution(conv_filters=(256,512),conv_strides=(2,1),width_multiplier=self.width_multiplier)
+    self.depthwise_block1 = DepthwiseSeparableConvolution(
+      conv_filters=(32,64),
+      conv_strides=(1,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block2 = DepthwiseSeparableConvolution(
+      conv_filters=(64,128),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block3 = DepthwiseSeparableConvolution(
+      conv_filters=(128,128),
+      conv_strides=(1,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block4 = DepthwiseSeparableConvolution(
+      conv_filters=(128,256),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block5 = DepthwiseSeparableConvolution(
+      conv_filters=(256,256),
+      conv_strides=(1,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block6 = DepthwiseSeparableConvolution(
+      conv_filters=(256,512),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
     
     self.dw_penta_block = [
-        DepthwiseSeparableConvolution(conv_filters=(512,512),conv_strides=(1,1),width_multiplier=self.width_multiplier)
+        DepthwiseSeparableConvolution(
+          conv_filters=(512,512),
+          conv_strides=(1,1),
+          width_multiplier=self.width_multiplier,
+          depth_multiplier=self.depth_multiplier)
         for _ in range(5)
     ]       
     
-    self.depthwise_block7 = DepthwiseSeparableConvolution(conv_filters=(512,1024),conv_strides=(2,1),width_multiplier=self.width_multiplier)
-    self.depthwise_block8 = DepthwiseSeparableConvolution(conv_filters=(1024,1024),conv_strides=(1,1),width_multiplier=self.width_multiplier)
+    self.depthwise_block7 = DepthwiseSeparableConvolution(
+      conv_filters=(512,1024),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block8 = DepthwiseSeparableConvolution(
+      conv_filters=(1024,1024),
+      conv_strides=(1,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
     
     self.global_average_pool = tf.keras.layers.GlobalAveragePooling2D()
-    self.fully_connected = tf.keras.layers.Dense(units = 120)
+    self.fully_connected = tf.keras.layers.Dense(units = self.num_classes)
         
   def call(self, inputs, training=None):
 
@@ -114,7 +159,10 @@ def model_fn(features, labels, mode, params):
   preprocessed_images = preprocess_image(features['image'])
   batch_label = labels
 
-  model = MobilNet_Architecture(width_multiplier=params['width_multiplier'])
+  model = MobilNet_Architecture(
+    width_multiplier=params['width_multiplier'],
+    depth_multiplier=params['depth_multiplier'],
+    num_classes=params['num_classes'])
   logits = model(preprocessed_images, training=training)
 
   y_pred = tf.argmax(input=logits, axis=-1)
