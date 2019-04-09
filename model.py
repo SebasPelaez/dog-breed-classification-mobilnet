@@ -179,10 +179,14 @@ def model_fn(features, labels, mode, params):
   loss = xentropy + tf.losses.get_regularization_loss()
 
   eval_metric_ops = {
-    "accuracy": tf.metrics.accuracy(labels=labels, predictions=predictions["classes"])
+    "accuracy": tf.metrics.accuracy(labels=labels, predictions=predictions["classes"]),
+    "precision": tf.metrics.precision(labels=labels, predictions=predictions["classes"]),
+    "recall": tf.metrics.recall(labels=labels, predictions=predictions["classes"])
   }
 
   tf.summary.scalar('accuracy', tf.metrics.accuracy(labels, y_pred)[1])
+  tf.summary.scalar('precision', tf.metrics.precision(labels, y_pred)[1])
+  tf.summary.scalar('recall', tf.metrics.recall(labels, y_pred)[1])
   
   if mode == tf.estimator.ModeKeys.EVAL:
     return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=eval_metric_ops)

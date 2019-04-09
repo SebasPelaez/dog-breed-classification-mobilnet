@@ -58,8 +58,8 @@ def split_data(params):
   test_dataset_mat = scipy.io.loadmat(test_dataset_mat_path)
   test_dataset_mat['labels'] = test_dataset_mat['labels'] - 1
 
-  training_dev_df = _make_data_frame(file_mat=train_dataset_mat)
-  test_df = _make_data_frame(file_mat=test_dataset_mat)
+  training_dev_df = _make_data_frame(file_mat=train_dataset_mat, shuffle=True)
+  test_df = _make_data_frame(file_mat=test_dataset_mat, shuffle=True)
 
   if params['num_classes'] < 120:
     classes = np.arange(params['num_classes'])
@@ -70,8 +70,18 @@ def split_data(params):
     test_filter = test_df['labels'].isin(classes)
     test_df = test_df[test_filter]
 
-  training_df = training_dev_df.sample(frac = 0.85)
-  validation_df = training_dev_df.drop(training_df.index)
+  training_df = pd.DataFrame()
+  validation_df = pd.DataFrame()
+  
+  for label in np.arange(params['num_classes']):
+
+    df_group = training_dev_df[training_dev_df['labels'] == label]
+    
+    training_sample = df_group.sample(frac=0.8)
+    validation_sample = df_group.drop(training_sample.index)
+
+    training_df = training_df.append(training_sample)
+    validation_df = validation_df.append(validation_sample)
 
   training_df.to_csv(os.path.join(params['data_dir'],params['training_data']), header=None, index=None, sep='\t')
   validation_df.to_csv(os.path.join(params['data_dir'],params['validation_data']), header=None, index=None, sep='\t')
@@ -89,12 +99,14 @@ def _make_lists(file_mat):
       
   return images_list,label_list
 
-def _make_data_frame(file_mat):
+def _make_data_frame(file_mat, shuffle):
 
   data_in_list = _make_lists(file_mat)
   data_dict = {'images': data_in_list[0], 'labels': data_in_list[1]}
   df = pd.DataFrame.from_dict(data_dict)
-  #df = df.sample(frac=1).reset_index(drop=True)
+
+  if shuffle:
+    df = df.sample(frac=1).reset_index(drop=True)
   
   return df
 
