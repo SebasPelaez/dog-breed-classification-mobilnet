@@ -31,9 +31,6 @@ def flip_up_down(x):
 def rotate(x):
   return tf.image.rot90(x, tf.random_uniform(shape=[], minval=0, maxval=4, dtype=tf.int32))
 
-def color_hue(x):
-  return tf.image.random_hue(x, 0.08)
-
 def color_saturation(x):
   return tf.image.random_saturation(x, 0.6, 1.6)
 
@@ -83,7 +80,7 @@ def input_fn(sources, train, params):
   data_set = tf.data.Dataset.zip((image_data_set,label_data_set))
 
   # Add augmentations
-  augmentations = [flip_left_right, flip_up_down, rotate, color_hue, color_brightness, color_contrast, color_saturation]
+  augmentations = [flip_left_right, flip_up_down, rotate, color_brightness, color_contrast, color_saturation]
 
   data_set = data_set.map(parse_image, num_parallel_calls=4)
   data_set = data_set.map(resize_image, num_parallel_calls=4)

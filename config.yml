@@ -26,10 +26,13 @@ shuffle_buffer: 4
 # Parameters that may affect training
 batch_size: 10
 learning_rate: 0.001
-max_steps: 165000
+max_steps: 50000
 width_multiplier: 1
 depth_multiplier: 1
 num_classes: 120
+dropout_rate: 0.5
+regularization_rate: 0.0001
+tiny_model: True
 
 # Logging and summaries 
 eval_steps: 10

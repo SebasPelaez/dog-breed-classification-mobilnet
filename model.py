@@ -51,11 +51,12 @@ class DepthwiseSeparableConvolution(tf.keras.models.Model):
 
 class MobilNet_Architecture(tf.keras.models.Model):
   
-  def __init__(self,width_multiplier,depth_multiplier,num_classes, **kwargs):
+  def __init__(self,width_multiplier,depth_multiplier,num_classes,dropout_rate, **kwargs):
     super(MobilNet_Architecture, self).__init__(**kwargs)
     self.width_multiplier = width_multiplier
     self.depth_multiplier = depth_multiplier
     self.num_classes = num_classes
+    self.dropout_rate = dropout_rate
         
   def build(self, input_shape):
 
@@ -106,7 +107,7 @@ class MobilNet_Architecture(tf.keras.models.Model):
           width_multiplier=self.width_multiplier,
           depth_multiplier=self.depth_multiplier)
         for _ in range(5)
-    ]       
+    ]
     
     self.depthwise_block7 = DepthwiseSeparableConvolution(
       conv_filters=(512,1024),
@@ -120,7 +121,8 @@ class MobilNet_Architecture(tf.keras.models.Model):
       width_multiplier=self.width_multiplier,
       depth_multiplier=self.depth_multiplier)
     
-    self.global_average_pool = tf.keras.layers.GlobalAveragePooling2D()
+    self.global_average_pool = tf.keras.layers.GlobalAveragePooling2D()    
+    self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
     self.fully_connected = tf.keras.layers.Dense(units = self.num_classes)
         
   def call(self, inputs, training=None):
@@ -138,14 +140,83 @@ class MobilNet_Architecture(tf.keras.models.Model):
     
     penta_block = dw_con6
     for dw in self.dw_penta_block:
-        penta_block = dw(penta_block, training = training)
-        
+      penta_block = dw(penta_block, training = training)
     
     dw_con7 = self.depthwise_block7(penta_block, training=training)
     dw_con8 = self.depthwise_block8(dw_con7, training=training)
     
     gap = self.global_average_pool(dw_con8)
-    output = self.fully_connected(gap)
+    dropout_reg = self.dropout(gap, training=training)
+
+    output = self.fully_connected(dropout_reg)
+
+    return output
+
+class MobilNet_Architecture_Tiny(tf.keras.models.Model):
+
+  def __init__(self,width_multiplier,depth_multiplier,num_classes,dropout_rate, **kwargs):
+    super(MobilNet_Architecture_Tiny, self).__init__(**kwargs)
+    self.width_multiplier = width_multiplier
+    self.depth_multiplier = depth_multiplier
+    self.num_classes = num_classes
+    self.dropout_rate = dropout_rate
+        
+  def build(self, input_shape):
+
+    self.conv1 = tf.keras.layers.Conv2D(filters=32,kernel_size=3,strides=2,padding='same')
+    self.bn1 = tf.keras.layers.BatchNormalization()
+    self.activation1 = tf.keras.layers.Activation('relu')
+    
+    self.depthwise_block1 = DepthwiseSeparableConvolution(
+      conv_filters=(64,128),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block2 = DepthwiseSeparableConvolution(
+      conv_filters=(128,256),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+
+    self.depthwise_block3 = DepthwiseSeparableConvolution(
+      conv_filters=(256,512),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+    
+    self.depthwise_block4 = DepthwiseSeparableConvolution(
+      conv_filters=(512,512),
+      conv_strides=(1,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+    
+    self.depthwise_block5 = DepthwiseSeparableConvolution(
+      conv_filters=(512,1024),
+      conv_strides=(2,1),
+      width_multiplier=self.width_multiplier,
+      depth_multiplier=self.depth_multiplier)
+    
+    self.global_average_pool = tf.keras.layers.GlobalAveragePooling2D()    
+    self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
+    self.fully_connected = tf.keras.layers.Dense(units = self.num_classes)
+        
+  def call(self, inputs, training=None):
+
+    first_conv = self.conv1(inputs)
+    first_conv = self.bn1(first_conv, training=training)
+    first_conv = self.activation1(first_conv)
+    
+    dw_con1 = self.depthwise_block1(first_conv, training=training)
+    dw_con2 = self.depthwise_block2(dw_con1, training=training)
+    dw_con3 = self.depthwise_block3(dw_con2, training=training)
+    dw_con4 = self.depthwise_block4(dw_con3, training=training)
+    dw_con5 = self.depthwise_block5(dw_con4, training=training)
+
+    gap = self.global_average_pool(dw_con5)
+    dropout_reg = self.dropout(gap, training=training)
+
+    output = self.fully_connected(dropout_reg)
 
     return output
 
@@ -159,10 +230,19 @@ def model_fn(features, labels, mode, params):
   preprocessed_images = preprocess_image(features['image'])
   batch_label = labels
 
-  model = MobilNet_Architecture(
-    width_multiplier=params['width_multiplier'],
-    depth_multiplier=params['depth_multiplier'],
-    num_classes=params['num_classes'])
+  if params['tiny_model']:
+    model = MobilNet_Architecture_Tiny(
+      width_multiplier=params['width_multiplier'],
+      depth_multiplier=params['depth_multiplier'],
+      num_classes=params['num_classes'],
+      dropout_rate=params['dropout_rate'])
+  else:
+    model = MobilNet_Architecture(
+      width_multiplier=params['width_multiplier'],
+      depth_multiplier=params['depth_multiplier'],
+      num_classes=params['num_classes'],
+      dropout_rate=params['dropout_rate'])
+  
   logits = model(preprocessed_images, training=training)
 
   y_pred = tf.argmax(input=logits, axis=-1)
