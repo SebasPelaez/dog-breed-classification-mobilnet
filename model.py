@@ -160,8 +160,6 @@ class MobilNet_Architecture_Tiny(tf.keras.models.Model):
     self.depth_multiplier = depth_multiplier
     self.num_classes = num_classes
     self.dropout_rate = dropout_rate
-        
-  def build(self, input_shape):
 
     self.conv1 = tf.keras.layers.Conv2D(filters=32,kernel_size=3,strides=2,padding='same')
     self.bn1 = tf.keras.layers.BatchNormalization()

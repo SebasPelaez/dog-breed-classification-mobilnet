@@ -21,7 +21,6 @@ test_data: 'test.txt'
 
 # Data configuration
 shuffle: True
-shuffle_buffer: 4
 
 # Parameters that may affect training
 batch_size: 10
@@ -33,9 +32,10 @@ num_classes: 120
 dropout_rate: 0.5
 regularization_rate: 0.0001
 tiny_model: True
+num_epochs: 1000
 
 # Logging and summaries 
-eval_steps: 10
+eval_steps: 1
 keep_checkpoint_max: 3
 log_frequency: 20
 save_checkpoints_steps: 20

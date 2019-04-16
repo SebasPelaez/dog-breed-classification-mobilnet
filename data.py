@@ -42,63 +42,39 @@ def color_contrast(x):
 
 def input_fn(sources, train, params):
 
-  def parse_image(filename, label):
-    image_string = tf.read_file(filename)
+  def load_and_preprocess_images(row):
+
+    image_string = tf.read_file(row['image'])
     image_decoded = tf.image.decode_image(image_string)
     image_decoded.set_shape((None, None, 3))
-    return image_decoded, label
-
-  def resize_image(image, label):
-
-    resized_images = tf.image.resize_images( 
-      images = image,
+    img = tf.image.resize_images( 
+      images = image_decoded,
       size = [224, 224],
       method=tf.image.ResizeMethod.NEAREST_NEIGHBOR
     )
+    img = tf.cast(img, tf.float32) / 255
 
-    return resized_images, label
+    return img, row['label']
 
-  def verify_channels(image, label):
+  images, labels = zip(*sources)
 
-    image = tf.cond(
-      tf.not_equal(image.get_shape()[-1], 3),
-      true_fn = lambda: image[:,:,:3],
-      false_fn = lambda: image
-    )
-    
-    return image, label
-
-
-  image_list, label_list = zip(*sources)
-
-  image_list = list(image_list)
-  label_list = list(label_list)
-
-  image_data_set = tf.data.Dataset.from_tensor_slices(image_list)
-  label_data_set = tf.data.Dataset.from_tensor_slices(label_list)
-
-  data_set = tf.data.Dataset.zip((image_data_set,label_data_set))
+  data_set = tf.data.Dataset.from_tensor_slices({
+    'image': list(images),
+    'label': list(labels)})
 
   # Add augmentations
   augmentations = [flip_left_right, flip_up_down, rotate, color_brightness, color_contrast, color_saturation]
 
-  data_set = data_set.map(parse_image, num_parallel_calls=4)
-  data_set = data_set.map(resize_image, num_parallel_calls=4)
-  data_set = data_set.map(verify_channels, num_parallel_calls=4)
+  data_set = data_set.map(load_and_preprocess_images, num_parallel_calls=4)
 
   for f in augmentations:
     data_set = data_set.map(lambda x,y: (tf.cond(tf.random_uniform([], 0, 1) > 0.75, lambda: f(x), lambda: x),y), num_parallel_calls=4)
 
   if train:
-    data_set = data_set.shuffle(buffer_size=params['shuffle_buffer'])
-    data_set = data_set.repeat()
+    data_set = data_set.shuffle(buffer_size=params['batch_size']*4)
+    data_set = data_set.repeat(count=params['num_epochs'])
 
   data_set = data_set.batch(params['batch_size'])
-  iterator = data_set.make_one_shot_iterator()
-
-  images_batch, labels_batch = iterator.get_next()
-
-  features = {'image': images_batch}
-  y = labels_batch
+  data_set = data_set.prefetch(1)
     
-  return features, y
+  return data_set
