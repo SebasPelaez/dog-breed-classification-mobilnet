@@ -110,7 +110,6 @@ def _make_data_frame(file_mat, shuffle, params):
   
   return df
 
-
 if __name__ == '__main__':
 
   params = utils.yaml_to_dict('config.yml')
