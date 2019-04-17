@@ -1,4 +1,5 @@
 import argparse
+import json
 import keras
 import os
 
@@ -12,20 +13,25 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 def train_model(params):
 
-  train_sources = data._sources(params)
-  train_sources = data.input_fn(train_sources, True, params)
+  train_generator = data.data_generator(params, mode='training')
+  val_generator = data.data_generator(params,mode='validation')
 
-  test_sources = data._sources(params,mode='validation')
-  test_sources = data.input_fn(test_sources, False, params)
+  base_model = tf.keras.applications.MobileNet(input_shape=params['image_shape'],include_top=False,weights='imagenet')
+  base_model.trainable = False
 
-  net = model.MobilNet_Architecture_Tiny(
+  mobilnet_tiny = model.MobilNet_Architecture_Tiny(
     width_multiplier=params['width_multiplier'],
     depth_multiplier=params['depth_multiplier'],
     num_classes=params['num_classes'],
-    dropout_rate=params['dropout_rate'])
+    dropout_rate=params['dropout_rate'],
+    regularization_rate=params['regularization_rate'])
+
+  net = tf.keras.Sequential([
+    base_model,
+    mobilnet_tiny])
 
   cp_callback = tf.keras.callbacks.ModelCheckpoint(
-    os.path.join(args.checkpoint_dir, 'tf_ckpt'), 
+    os.path.join(params['model_dir'], 'tf_ckpt'), 
     save_weights_only=True, 
     verbose=1,
     period=5)
@@ -34,16 +40,24 @@ def train_model(params):
     os.path.join(params['model_dir'], 'logs'))
 
   optimizer = tf.keras.optimizers.Adam(lr=params['learning_rate'])
-  loss = tf.losses.sparse_softmax_cross_entropy
-  net.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 
-  net.fit(
-    x=train_sources,
-    epochs=params['num_epochs'],
-    validation_data=test_sources,
-    steps_per_epoch=960,
-    validation_steps=params['eval_steps'],
+  net.compile(optimizer=optimizer,loss=params['loss'],metrics=[f1_score,'accuracy'])
+
+  steps_per_epoch = train_generator.n // params['batch_size']
+  validation_steps = val_generator.n // params['batch_size']
+
+  history = net.fit_generator(
+    train_generator,
+    steps_per_epoch = steps_per_epoch,
+    epochs=params['num_epochs'], 
+    workers=4,
+    validation_data=val_generator, 
+    validation_steps=validation_steps,
     callbacks=[cp_callback, tb_callback])
+
+  # Save it under the form of a json file
+  with open(os.path.join(params['model_dir'], 'history.json'),'w') as file:
+    json.dump(history.history,file)
 
 
 def f1_score(y_true, y_pred):

@@ -58,8 +58,8 @@ def split_data(params):
   test_dataset_mat = scipy.io.loadmat(test_dataset_mat_path)
   test_dataset_mat['labels'] = test_dataset_mat['labels'] - 1
 
-  training_dev_df = _make_data_frame(file_mat=train_dataset_mat, shuffle=True)
-  test_df = _make_data_frame(file_mat=test_dataset_mat, shuffle=True)
+  training_dev_df = _make_data_frame(file_mat=train_dataset_mat, shuffle=True, params=params)
+  test_df = _make_data_frame(file_mat=test_dataset_mat, shuffle=True, params=params)
 
   if params['num_classes'] < 120:
     classes = np.arange(params['num_classes'])
@@ -83,25 +83,25 @@ def split_data(params):
     training_df = training_df.append(training_sample)
     validation_df = validation_df.append(validation_sample)
 
-  training_df.to_csv(os.path.join(params['data_dir'],params['training_data']), header=None, index=None, sep='\t')
-  validation_df.to_csv(os.path.join(params['data_dir'],params['validation_data']), header=None, index=None, sep='\t')
+  training_df.to_csv(os.path.join(params['data_dir'],params['training_data']), header=True, index=None, sep='\t')
+  validation_df.to_csv(os.path.join(params['data_dir'],params['validation_data']), header=True, index=None, sep='\t')
   
-  test_df.to_csv(os.path.join(params['data_dir'],params['test_data']), header=None, index=None, sep='\t')
+  test_df.to_csv(os.path.join(params['data_dir'],params['test_data']), header=True, index=None, sep='\t')
 
-def _make_lists(file_mat):
+def _make_lists(file_mat, params):
     
   images_list = list()
   label_list = list()
 
   for images,labels in zip(file_mat['file_list'][:],file_mat['labels']):
-    images_list.append(images[0][0])
+    images_list.append(os.path.join(params['data_dir'],params['data_dir_images'],images[0][0]))
     label_list.append(labels[0])
       
   return images_list,label_list
 
-def _make_data_frame(file_mat, shuffle):
+def _make_data_frame(file_mat, shuffle, params):
 
-  data_in_list = _make_lists(file_mat)
+  data_in_list = _make_lists(file_mat, params)
   data_dict = {'images': data_in_list[0], 'labels': data_in_list[1]}
   df = pd.DataFrame.from_dict(data_dict)
 
@@ -114,7 +114,7 @@ def _make_data_frame(file_mat, shuffle):
 if __name__ == '__main__':
 
   params = utils.yaml_to_dict('config.yml')
-  download_data(params)
-  extract_data(params)
-  make_id_label_map(params)
+  #download_data(params)
+  #extract_data(params)
+  #make_id_label_map(params)
   split_data(params)

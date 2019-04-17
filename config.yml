@@ -6,7 +6,7 @@ compressed_list_name: 'lists.tar'
 
 # Directories for dataset and checkpoints
 data_dir: 'dataset'
-data_dir_images: 'dataset\Images'
+data_dir_images: 'Images'
 data_dir_list: 'dataset\List'
 model_dir: 'checkpoints'
 label_id_json: 'labels.json'
@@ -21,6 +21,7 @@ test_data: 'test.txt'
 
 # Data configuration
 shuffle: True
+image_shape: [224, 224, 3]
 
 # Parameters that may affect training
 batch_size: 10
@@ -28,11 +29,13 @@ learning_rate: 0.001
 max_steps: 50000
 width_multiplier: 1
 depth_multiplier: 1
-num_classes: 120
+num_classes: 10
 dropout_rate: 0.5
-regularization_rate: 0.0001
+regularization_rate: 0.001
 tiny_model: True
-num_epochs: 1000
+num_epochs: 45
+class_mode: 'other'
+loss: 'sparse_categorical_crossentropy'
 
 # Logging and summaries 
 eval_steps: 1

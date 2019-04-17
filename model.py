@@ -4,7 +4,7 @@ import utils
 
 class DepthwiseSeparableConvolution(tf.keras.models.Model):
   
-  def __init__(self,conv_filters,conv_strides,width_multiplier,depth_multiplier, **kwargs):
+  def __init__(self,conv_filters,conv_strides,width_multiplier,depth_multiplier,regularization_rate, **kwargs):
     super(DepthwiseSeparableConvolution, self).__init__(**kwargs)
     
     self.dw_filter = conv_filters[0]
@@ -15,6 +15,8 @@ class DepthwiseSeparableConvolution(tf.keras.models.Model):
     
     self.width_multiplier = width_multiplier
     self.depth_multiplier = depth_multiplier
+
+    self.regularization_rate = regularization_rate
     
   def build(self, input_shape):
     
@@ -33,7 +35,8 @@ class DepthwiseSeparableConvolution(tf.keras.models.Model):
         filters=point_wise_filters,
         kernel_size=1,
         strides=self.pw_stride,
-        padding='same')
+        padding='same',
+        kernel_regularizer=tf.keras.regularizers.l2(self.regularization_rate))
     self.bn_pw = tf.keras.layers.BatchNormalization()
     self.activation_pw = tf.keras.layers.Activation('relu')
 
@@ -154,14 +157,20 @@ class MobilNet_Architecture(tf.keras.models.Model):
 
 class MobilNet_Architecture_Tiny(tf.keras.models.Model):
 
-  def __init__(self,width_multiplier,depth_multiplier,num_classes,dropout_rate, **kwargs):
+  def __init__(self,width_multiplier,depth_multiplier,num_classes,dropout_rate,regularization_rate, **kwargs):
     super(MobilNet_Architecture_Tiny, self).__init__(**kwargs)
     self.width_multiplier = width_multiplier
     self.depth_multiplier = depth_multiplier
     self.num_classes = num_classes
     self.dropout_rate = dropout_rate
+    self.regularization_rate = regularization_rate
 
-    self.conv1 = tf.keras.layers.Conv2D(filters=32,kernel_size=3,strides=2,padding='same')
+    self.conv1 = tf.keras.layers.Conv2D(
+      filters=32,
+      kernel_size=3,
+      strides=2,
+      padding='same',
+      kernel_regularizer=tf.keras.regularizers.l2(self.regularization_rate))
     self.bn1 = tf.keras.layers.BatchNormalization()
     self.activation1 = tf.keras.layers.Activation('relu')
     
@@ -169,35 +178,36 @@ class MobilNet_Architecture_Tiny(tf.keras.models.Model):
       conv_filters=(64,128),
       conv_strides=(2,1),
       width_multiplier=self.width_multiplier,
-      depth_multiplier=self.depth_multiplier)
+      depth_multiplier=self.depth_multiplier,
+      regularization_rate = self.regularization_rate)
 
     self.depthwise_block2 = DepthwiseSeparableConvolution(
       conv_filters=(128,256),
       conv_strides=(2,1),
       width_multiplier=self.width_multiplier,
-      depth_multiplier=self.depth_multiplier)
+      depth_multiplier=self.depth_multiplier,
+      regularization_rate = self.regularization_rate)
 
     self.depthwise_block3 = DepthwiseSeparableConvolution(
       conv_filters=(256,512),
       conv_strides=(2,1),
       width_multiplier=self.width_multiplier,
-      depth_multiplier=self.depth_multiplier)
+      depth_multiplier=self.depth_multiplier,
+      regularization_rate = self.regularization_rate)
     
     self.depthwise_block4 = DepthwiseSeparableConvolution(
-      conv_filters=(512,512),
-      conv_strides=(1,1),
-      width_multiplier=self.width_multiplier,
-      depth_multiplier=self.depth_multiplier)
-    
-    self.depthwise_block5 = DepthwiseSeparableConvolution(
       conv_filters=(512,1024),
       conv_strides=(2,1),
       width_multiplier=self.width_multiplier,
-      depth_multiplier=self.depth_multiplier)
+      depth_multiplier=self.depth_multiplier,
+      regularization_rate = self.regularization_rate)
     
     self.global_average_pool = tf.keras.layers.GlobalAveragePooling2D()    
     self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
-    self.fully_connected = tf.keras.layers.Dense(units = self.num_classes)
+    self.fully_connected = tf.keras.layers.Dense(
+      units = self.num_classes,
+      kernel_regularizer=tf.keras.regularizers.l2(self.regularization_rate))
+    self.activation_softmax = tf.keras.layers.Activation('softmax')
         
   def call(self, inputs, training=None):
 
@@ -209,81 +219,11 @@ class MobilNet_Architecture_Tiny(tf.keras.models.Model):
     dw_con2 = self.depthwise_block2(dw_con1, training=training)
     dw_con3 = self.depthwise_block3(dw_con2, training=training)
     dw_con4 = self.depthwise_block4(dw_con3, training=training)
-    dw_con5 = self.depthwise_block5(dw_con4, training=training)
 
-    gap = self.global_average_pool(dw_con5)
+    gap = self.global_average_pool(dw_con4)
     dropout_reg = self.dropout(gap, training=training)
 
     output = self.fully_connected(dropout_reg)
+    output = self.activation_softmax(output)
 
     return output
-
-def preprocess_image(x):
-  return tf.cast(x, tf.float32) / 255
-
-def model_fn(features, labels, mode, params):
-
-  training = mode == tf.estimator.ModeKeys.TRAIN
-
-  preprocessed_images = preprocess_image(features['image'])
-  batch_label = labels
-
-  if params['tiny_model']:
-    model = MobilNet_Architecture_Tiny(
-      width_multiplier=params['width_multiplier'],
-      depth_multiplier=params['depth_multiplier'],
-      num_classes=params['num_classes'],
-      dropout_rate=params['dropout_rate'])
-  else:
-    model = MobilNet_Architecture(
-      width_multiplier=params['width_multiplier'],
-      depth_multiplier=params['depth_multiplier'],
-      num_classes=params['num_classes'],
-      dropout_rate=params['dropout_rate'])
-  
-  logits = model(preprocessed_images, training=training)
-
-  y_pred = tf.argmax(input=logits, axis=-1)
-  predictions = {
-    "classes": y_pred,
-    "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
-  }
-
-  if mode == tf.estimator.ModeKeys.PREDICT:
-    return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
-
-  xentropy = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
-
-  loss = xentropy + tf.losses.get_regularization_loss()
-
-  eval_metric_ops = {
-    "accuracy": tf.metrics.accuracy(labels=labels, predictions=predictions["classes"]),
-    "precision": tf.metrics.precision(labels=labels, predictions=predictions["classes"]),
-    "recall": tf.metrics.recall(labels=labels, predictions=predictions["classes"])
-  }
-
-  tf.summary.scalar('accuracy', tf.metrics.accuracy(labels, y_pred)[1])
-  tf.summary.scalar('precision', tf.metrics.precision(labels, y_pred)[1])
-  tf.summary.scalar('recall', tf.metrics.recall(labels, y_pred)[1])
-  
-  if mode == tf.estimator.ModeKeys.EVAL:
-    return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=eval_metric_ops)
-  
-  if mode == tf.estimator.ModeKeys.TRAIN:
-    
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-    with tf.control_dependencies(update_ops):
-      optimizer = tf.train.AdamOptimizer(
-        learning_rate=params['learning_rate'],
-        beta1=0.9, 
-        beta2=0.999, 
-        epsilon=1e-08, 
-        use_locking=False
-      )
-      
-      train_op = optimizer.minimize(
-        loss=loss,
-        global_step=tf.train.get_global_step()
-      )
-
-    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
