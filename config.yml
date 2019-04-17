@@ -1,41 +1,40 @@
 # Online Dataset
-url_dataset: 'http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar'
-url_list: 'http://vision.stanford.edu/aditya86/ImageNetDogs/lists.tar'
 compressed_data_name: 'images.tar'
 compressed_list_name: 'lists.tar'
+url_dataset: 'http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar'
+url_list: 'http://vision.stanford.edu/aditya86/ImageNetDogs/lists.tar'
 
 # Directories for dataset and checkpoints
 data_dir: 'dataset'
 data_dir_images: 'Images'
 data_dir_list: 'dataset\List'
-model_dir: 'checkpoints'
 label_id_json: 'labels.json'
+model_dir: 'checkpoints'
 
 # Data files
-train_mat_file: 'train_list.mat'
-test_mat_file: 'test_list.mat'
-
-training_data: 'training.txt'
-validation_data: 'validation.txt'
 test_data: 'test.txt'
+test_mat_file: 'test_list.mat'
+training_data: 'training.txt'
+train_mat_file: 'train_list.mat'
+validation_data: 'validation.txt'
 
 # Data configuration
-shuffle: True
 image_shape: [224, 224, 3]
+shuffle: True
 
 # Parameters that may affect training
 batch_size: 10
-learning_rate: 0.001
-max_steps: 50000
-width_multiplier: 1
+class_mode: 'other'
 depth_multiplier: 1
-num_classes: 10
 dropout_rate: 0.5
+learning_rate: 0.001
+loss: 'sparse_categorical_crossentropy'
+max_steps: 50000
+num_classes: 10
+num_epochs: 45
 regularization_rate: 0.001
 tiny_model: True
-num_epochs: 45
-class_mode: 'other'
-loss: 'sparse_categorical_crossentropy'
+width_multiplier: 1
 
 # Logging and summaries 
 eval_steps: 1
