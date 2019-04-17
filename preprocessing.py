@@ -114,7 +114,7 @@ def _make_data_frame(file_mat, shuffle, params):
 if __name__ == '__main__':
 
   params = utils.yaml_to_dict('config.yml')
-  #download_data(params)
-  #extract_data(params)
-  #make_id_label_map(params)
+  download_data(params)
+  extract_data(params)
+  make_id_label_map(params)
   split_data(params)
