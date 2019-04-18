@@ -19,9 +19,12 @@ For doing this project I used the following resources:
     data.ipynb
     model.ipynb
     preprocessing.ipynb
+- pics/
 - config.py
 - data.py
+- make_predictions.ipynb
 - model.py
+- predictions.py
 - preprocessing.py
 - trainer.py
 - utils.py
@@ -30,12 +33,75 @@ For doing this project I used the following resources:
 The previous structure have the following information:
 
 * **tests:** This folder contain some Jupyter Notebooks in which I validated the correct behavior of the different methods developed in the scripts.
+* **pics:** This folder contain some pictures which I use to visualize different results in theproject pipeline.
 * **config:** This script contains the parameters values used through the differents .py files.
 * **data:** This script is in charge of read and load the images, build the _input fn_ and define the data augmentation methods.
+* **make_predictions:** This is a Jupyter Notebook that I prepare for anybody that want to make your own predictions.
 * **model:** This script defines model function, loss function and accuracy metrics needed to track the model performance.
+* **predictions:** This scripts is coded for make easier the _own predictions_ process.
 * **preprocessing:** With this script we prepare the enviroment to before train the model.
 * **trainer:** This files is in charge to train and validate the model defined.
 * **utils:** This file contains some utility methods which are used by .py files.
+
+## Model specifications and results
+
+The architecture of this project are composed by two parts. The first one is a pretrained model and the second one is a custom architecture, both based on _Mobilnet_.
+
+**So, Why I use a pretrained model?** Because, the pre-trained models have their parameters more adjusted and the filters they have learned are more polished, with which, we save the process of teaching the network those filters and the only thing that we should focus on is to adapt the other parameters to the specifications of our data set.
+
+**How are the specifications of pre-trained model?** The pretrained model is an instance of MobilNet network, trained with imagenet weigths this architecture is provided by Keras API. For this model, I freeze all trainable parameters for get the best feature maps of my dataset.
+
+**How is the architecture of custom model?** The custom model is a tiny mobilnet architecture, with 10 layers, one convolutional layer, one dense layer, four depthwise convolutional layers and four pointwise layers. All layer was trained with rectifier linear function and batch normalization before each activation, except the last layer which have softmax activation.
+
+**How is the complete model trained?** You can see the complete list of hyperparameters that I use for train the model in the _config.yml_ file. The more relevant parameters are.
+* batch_size: 10
+* depth_multiplier: 1
+* learning_rate: 0.001
+* loss: 'sparse_categorical_crossentropy'
+* num_classes: 10
+* num_epochs: 45
+* width_multiplier: 1
+* optimizer: Adam
+
+**Bonus** The full architecture of _Mobilnet_ (V1) is available in the _data.py_ file.If you want to try this network, you should change the following code.
+
+* **_In trainer.py file_**:
+
+Change this lines 
+
+```
+mobilnet_tiny = model.MobilNet_Architecture_Tiny(........
+```
+to 
+```
+mobilnet = model.MobilNet_Architecture(..........
+```
+
+and 
+
+```
+net = tf.keras.Sequential([
+    base_model,
+    mobilnet_tiny])
+```
+to
+```
+net = mobilnet
+```
+
+### Results
+* **Training and Validation Accuracy**
+![Training and Validation Accuracy](/pics/Training_Validation_Accuracy.png?raw=true)
+
+* **Training and Validation Loss**
+![Training and Validation Loss](/pics/Training_Validation_Loss.png?raw=true)
+
+* **Training and Validation F1 Score**
+![Training and Validation F1 Score](/pics/Epoch_F1_Training_Validation.png?raw=true)
+
+* **Predictions in test set**
+![Predictions in test set](/pics/Predictions_Test_Set.png?raw=true)
+
 
 ## How to use
 
@@ -77,7 +143,30 @@ At this point we have the enviroment ready to train the model.
 python trainer.py -c config.yml
 ```
 
-**Notes:**
+The previous steps allow us to train the model from the start, in the case that we want to train all parameters, but if we only want to use the predictor, we should download the pretrained weights from [here](https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=1) and then extract the .rar file in the project root folder.
+
+The project structure should be like that.
+
+```
+.
+.
+.
+- tests/
+    .
+    .
+    .
+- checkpoints
+- config.py
+.
+.
+.
+```
+
+### How to use the predictor
+
+Following the previous steps, we are ready to predict dog breeds. For do that you can go to [Jupyter Notebook](/make_predictions.ipynb) that I prepare for you.
+
+## Notes
 
 * Verify if your enviroment have all recommended dependencies.
 * Change the config.yml to adapt the project parameters of your PC capacities.
@@ -90,10 +179,9 @@ python trainer.py -c config.yml
 - [x] Create data managment and _input fn_ function.
 - [x] Code wrap function to execute the train and test process.
 - [x] Make Jupyter Notebooks with the unit test of some script functions.
-- [ ] Upload pretrained weights.
-- [ ] Show metrics and model results.
-- [ ] Create a Jupyter Notebook with the test of predictions script.
-- [ ] Make predictions with different dog images.
-
+- [x] Upload pretrained weights.
+- [x] Show metrics and model results.
+- [x] Create a Jupyter Notebook with the test of predictions script.
+- [x] Make predictions with different dog images.
 
 _Feel free to make me comments, corrections or advices_

@@ -16,6 +16,7 @@ def download_data(params):
 
   if not os.path.exists(params['data_dir']):
     os.makedirs(params['data_dir'])
+    os.makedirs(os.path.join(params['data_dir'],params['images_to_predict']))
 
   wget.download(url_file, params['data_dir'])
   wget.download(url_meta, params['data_dir'])
@@ -109,7 +110,6 @@ def _make_data_frame(file_mat, shuffle, params):
     df = df.sample(frac=1).reset_index(drop=True)
   
   return df
-
 
 if __name__ == '__main__':
 
