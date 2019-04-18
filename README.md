@@ -19,9 +19,12 @@ For doing this project I used the following resources:
     data.ipynb
     model.ipynb
     preprocessing.ipynb
+- pics/
 - config.py
 - data.py
+- make_predictions.ipynb
 - model.py
+- predictions.py
 - preprocessing.py
 - trainer.py
 - utils.py
@@ -30,9 +33,12 @@ For doing this project I used the following resources:
 The previous structure have the following information:
 
 * **tests:** This folder contain some Jupyter Notebooks in which I validated the correct behavior of the different methods developed in the scripts.
+* **pics:** This folder contain some pictures which I use to visualize different results in theproject pipeline.
 * **config:** This script contains the parameters values used through the differents .py files.
 * **data:** This script is in charge of read and load the images, build the _input fn_ and define the data augmentation methods.
+* **make_predictions:** This is a Jupyter Notebook that I prepare for anybody that want to make your own predictions.
 * **model:** This script defines model function, loss function and accuracy metrics needed to track the model performance.
+* **predictions:** This scripts is coded for make easier the _own predictions_ process.
 * **preprocessing:** With this script we prepare the enviroment to before train the model.
 * **trainer:** This files is in charge to train and validate the model defined.
 * **utils:** This file contains some utility methods which are used by .py files.
@@ -85,16 +91,16 @@ net = mobilnet
 
 ### Results
 * **Training and Validation Accuracy**
-![Training and Validation Accuracy](/pics/Training_Validation_Accuracy.png)
+![Training and Validation Accuracy](/pics/Training_Validation_Accuracy.png?raw=true)
 
 * **Training and Validation Loss**
-![Training and Validation Loss](/pics/Training_Validation_Loss.png)
+![Training and Validation Loss](/pics/Training_Validation_Loss.png?raw=true)
 
 * **Training and Validation F1 Score**
-![Training and Validation F1 Score](/pics/Epoch_F1_Training_Validation.png)
+![Training and Validation F1 Score](/pics/Epoch_F1_Training_Validation.png?raw=true)
 
 * **Predictions in test set**
-![Predictions in test set](/pics/Predictions_Test_Set.png)
+![Predictions in test set](/pics/Predictions_Test_Set.png?raw=true)
 
 
 ## How to use
@@ -176,7 +182,6 @@ Following the previous steps, we are ready to predict dog breeds. For do that yo
 - [x] Upload pretrained weights.
 - [x] Show metrics and model results.
 - [x] Create a Jupyter Notebook with the test of predictions script.
-- [ ] Make predictions with different dog images.
+- [x] Make predictions with different dog images.
 
-https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=0
 _Feel free to make me comments, corrections or advices_
