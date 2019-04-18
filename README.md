@@ -85,16 +85,16 @@ net = mobilnet
 
 ### Results
 * **Training and Validation Accuracy**
-![Training and Validation Accuracy](./pics/Training_Validation_Accuracy.png?raw=true)
+![Training and Validation Accuracy](/pics/Training_Validation_Accuracy.png)
 
 * **Training and Validation Loss**
-![Training and Validation Loss](./pics/Training_Validation_Loss.png?raw=true)
+![Training and Validation Loss](/pics/Training_Validation_Loss.png)
 
 * **Training and Validation F1 Score**
-![Training and Validation F1 Score](./pics/Epoch_F1_Training_Validation.png?raw=true)
+![Training and Validation F1 Score](/pics/Epoch_F1_Training_Validation.png)
 
 * **Predictions in test set**
-![Predictions in test set](./pics/Predictions_Test_Set.png?raw=true)
+![Predictions in test set](/pics/Predictions_Test_Set.png)
 
 
 ## How to use
@@ -158,11 +158,9 @@ The project structure should be like that.
 
 ### How to use the predictor
 
-Following the previous steps, we are ready to predict dog breeds. For do that we need to following this steps. 
+Following the previous steps, we are ready to predict dog breeds. For do that you can go to [Jupyter Notebook](/make_predictions.ipynb) that I prepare for you.
 
-
-
-**Notes:**
+## Notes
 
 * Verify if your enviroment have all recommended dependencies.
 * Change the config.yml to adapt the project parameters of your PC capacities.

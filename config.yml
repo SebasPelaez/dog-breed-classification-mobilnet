@@ -7,9 +7,10 @@ url_list: 'http://vision.stanford.edu/aditya86/ImageNetDogs/lists.tar'
 # Directories for dataset and checkpoints
 data_dir: 'dataset'
 data_dir_images: 'Images'
-data_dir_list: 'dataset\List'
+data_dir_list: 'List'
 label_id_json: 'labels.json'
 model_dir: 'checkpoints'
+images_to_predict: 'images_to_predict'
 
 # Data files
 test_data: 'test.txt'
