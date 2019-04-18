@@ -12,6 +12,8 @@ For doing this project I used the following resources:
 
 * Aditya Khosla, Nityananda Jayadevaprakash, Bangpeng Yao and Li Fei-Fei. Novel dataset for Fine-Grained Image Categorization. First Workshop on Fine-Grained Visual Categorization (FGVC), IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2011
 
+* Paddy. (Jul 25, 2017). Questions. How to calculate F1 Macro in Keras?. StackOverflow. Recovered From: https://stackoverflow.com/questions/43547402/how-to-calculate-f1-macro-in-keras
+
 ## Project Structure
 
 ```
@@ -91,16 +93,16 @@ net = mobilnet
 
 ### Results
 * **Training and Validation Accuracy**
-![Training and Validation Accuracy](pics/Training_Validation_Accuracy.png?raw=true)
+![Training and Validation Accuracy](pics/Training_Validation_Accuracy.PNG)
 
 * **Training and Validation Loss**
-![Training and Validation Loss](pics/Training_Validation_Loss.png?raw=true)
+![Training and Validation Loss](pics/Training_Validation_Loss.PNG)
 
 * **Training and Validation F1 Score**
-![Training and Validation F1 Score](pics/Epoch_F1_Training_Validation.png?raw=true)
+![Training and Validation F1 Score](pics/Epoch_F1_Training_Validation.PNG)
 
 * **Predictions in test set**
-![Predictions in test set](pics/Predictions_Test_Set.png?raw=true)
+![Predictions in test set](pics/Predictions_Test_Set.PNG)
 
 
 ## How to use

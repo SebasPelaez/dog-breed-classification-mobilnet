@@ -61,7 +61,6 @@ def train_model(params):
 
 
 def f1_score(y_true, y_pred):
-  #https://stackoverflow.com/questions/43547402/how-to-calculate-f1-macro-in-keras
   def recall(y_true, y_pred):
     """Recall metric.
 
