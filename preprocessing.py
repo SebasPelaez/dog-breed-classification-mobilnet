@@ -27,7 +27,7 @@ def extract_data(params):
   tar_meta = os.path.join(params['data_dir'],params['compressed_list_name'])
 
   _decompress(file_to_decompress=tar_file,location_to_decompress=params['data_dir'])
-  _decompress(file_to_decompress=tar_meta,location_to_decompress=params['data_dir_list'])
+  _decompress(file_to_decompress=tar_meta,location_to_decompress=os.path.join(params['data_dir'],params['data_dir_list']))
 
 def _decompress(file_to_decompress, location_to_decompress):
 
@@ -41,7 +41,8 @@ def make_id_label_map(params):
 
   if not os.path.isfile(labels_json_path):
     id_label_map = dict()
-    for numeric_label,string_label in enumerate(os.listdir(params['data_dir_images'])):
+    images_path = os.path.join(params['data_dir'],params['data_dir_images'])
+    for numeric_label,string_label in enumerate(os.listdir(images_path)):
       index_of = string_label.index('-')
       label = string_label[index_of+1:]
       id_label_map[label] = numeric_label
@@ -51,11 +52,11 @@ def make_id_label_map(params):
 
 def split_data(params):
 
-  train_dataset_mat_path = os.path.join(params['data_dir_list'],params['train_mat_file'])
+  train_dataset_mat_path = os.path.join(params['data_dir'],params['data_dir_list'],params['train_mat_file'])
   train_dataset_mat = scipy.io.loadmat(train_dataset_mat_path)
   train_dataset_mat['labels'] = train_dataset_mat['labels'] - 1 
 
-  test_dataset_mat_path = os.path.join(params['data_dir_list'],params['test_mat_file'])
+  test_dataset_mat_path = os.path.join(params['data_dir'],params['data_dir_list'],params['test_mat_file'])
   test_dataset_mat = scipy.io.loadmat(test_dataset_mat_path)
   test_dataset_mat['labels'] = test_dataset_mat['labels'] - 1
 

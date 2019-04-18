@@ -141,11 +141,8 @@ This script execute 4 functions.
 4. **split_data:** Creates 3 different .txt files with the classes distribution. One file for training, one for validation and one for test the model.
 
 At this point we have the enviroment ready to train the model.
-```
-python trainer.py -c config.yml
-```
 
-The previous steps allow us to train the model from the start, in the case that we want to train all parameters, but if we only want to use the predictor, we should download the pretrained weights from [here](https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=1) and then extract the .rar file in the project root folder.
+If we only want to use the predictor, we should download the pretrained weights from [here](https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=1) and then extract the .rar file in the project root folder.
 
 The project structure should be like that.
 
@@ -162,6 +159,14 @@ The project structure should be like that.
 .
 .
 .
+```
+
+If you don't want download the pre-trained weights because you want to train the model from the start, you should execute this code.
+
+_If you download the weights and extract in the root folder before run that, I recommend you to delete checkpoints folder and then run this line._
+
+```
+python trainer.py -c config.yml
 ```
 
 ### How to use the predictor
