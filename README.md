@@ -91,16 +91,16 @@ net = mobilnet
 
 ### Results
 * **Training and Validation Accuracy**
-![Training and Validation Accuracy](/pics/Training_Validation_Accuracy.png?raw=true)
+![Training and Validation Accuracy](pics/Training_Validation_Accuracy.png?raw=true)
 
 * **Training and Validation Loss**
-![Training and Validation Loss](/pics/Training_Validation_Loss.png?raw=true)
+![Training and Validation Loss](pics/Training_Validation_Loss.png?raw=true)
 
 * **Training and Validation F1 Score**
-![Training and Validation F1 Score](/pics/Epoch_F1_Training_Validation.png?raw=true)
+![Training and Validation F1 Score](pics/Epoch_F1_Training_Validation.png?raw=true)
 
 * **Predictions in test set**
-![Predictions in test set](/pics/Predictions_Test_Set.png?raw=true)
+![Predictions in test set](pics/Predictions_Test_Set.png?raw=true)
 
 
 ## How to use
