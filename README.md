@@ -1,18 +1,18 @@
 # DOG BREED CLASSIFICATION WITH MOBILNETS ARCHITECTURE
 
-In this project I implemented a deep learning architecture with the objective to predict the dog's breed from a set of images.
+In this project, I implemented a deep learning architecture with the objective to predict the dog's breed from a set of images.
 
 For doing this project I used the following resources:
 
-* Howard, A. G., Zhu, M., Chen, B., Kalenichenko, D., Wang, W., Weyand, T., ... & Adam, H. (2017). Mobilenets: Efficient convolutional neural networks for mobile vision applications. arXiv preprint arXiv:1704.04861.
+> Howard, A. G., Zhu, M., Chen, B., Kalenichenko, D., Wang, W., Weyand, T., ... & Adam, H. (2017). Mobilenets: Efficient convolutional neural networks for mobile vision applications. arXiv preprint arXiv:1704.04861.
 
-* Chi-Feng Wang. (Aug 13, 2018). A Basic Introduction to Separable Convolutions. Towards Data Science. Recovered From: https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728
+> Chi-Feng Wang. (Aug 13, 2018). A Basic Introduction to Separable Convolutions. Towards Data Science. Recovered From: https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728
 
-* Zehaos. (Nov 5, 2017). MobilNet. Github. https://github.com/Zehaos/MobileNet
+> Zehaos. (Nov 5, 2017). MobilNet. Github. https://github.com/Zehaos/MobileNet
 
-* Aditya Khosla, Nityananda Jayadevaprakash, Bangpeng Yao and Li Fei-Fei. Novel dataset for Fine-Grained Image Categorization. First Workshop on Fine-Grained Visual Categorization (FGVC), IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2011
+> Aditya Khosla, Nityananda Jayadevaprakash, Bangpeng Yao and Li Fei-Fei. Novel dataset for Fine-Grained Image Categorization. First Workshop on Fine-Grained Visual Categorization (FGVC), IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2011
 
-* Paddy. (Jul 25, 2017). Questions. How to calculate F1 Macro in Keras?. StackOverflow. Recovered From: https://stackoverflow.com/questions/43547402/how-to-calculate-f1-macro-in-keras
+> Paddy. (Jul 25, 2017). Questions. How to calculate F1 Macro in Keras?. StackOverflow. Recovered From: https://stackoverflow.com/questions/43547402/how-to-calculate-f1-macro-in-keras
 
 ## Project Structure
 
@@ -21,7 +21,7 @@ For doing this project I used the following resources:
     data.ipynb
     model.ipynb
     preprocessing.ipynb
-- pics/
+- assets/
 - config.py
 - data.py
 - make_predictions.ipynb
@@ -32,30 +32,30 @@ For doing this project I used the following resources:
 - utils.py
 ```
 
-The previous structure have the following information:
+The previous structure contains the following information:
 
-* **tests:** This folder contain some Jupyter Notebooks in which I validated the correct behavior of the different methods developed in the scripts.
-* **pics:** This folder contain some pictures which I use to visualize different results in theproject pipeline.
-* **config:** This script contains the parameters values used through the differents .py files.
-* **data:** This script is in charge of read and load the images, build the _input fn_ and define the data augmentation methods.
-* **make_predictions:** This is a Jupyter Notebook that I prepare for anybody that want to make your own predictions.
-* **model:** This script defines model function, loss function and accuracy metrics needed to track the model performance.
-* **predictions:** This scripts is coded for make easier the _own predictions_ process.
-* **preprocessing:** With this script we prepare the enviroment to before train the model.
-* **trainer:** This files is in charge to train and validate the model defined.
-* **utils:** This file contains some utility methods which are used by .py files.
+* **tests:** This folder contain some Jupyter Notebooks used to validate the correct behavior of the different methods developed in the scripts.
+* **assets:** This folder contains some screenshots that allow us to visualize the results in the project pipeline.
+* **config:** This script contains the parameters' values used through the differents .py files.
+* **data:** This script is in charge of reading and load the images, build the _input fn_ and define the data augmentation methods.
+* **make_predictions:** This is a Jupyter Notebook open for anybody that want to make their own predictions.
+* **model:** This script defines a model function, loss function and accuracy metrics needed to track the model performance.
+* **predictions:** This script is developed in order to make easier the _own predictions_ process.
+* **preprocessing:** This script contains the environment setup needed before training the model.
+* **trainer:** This file contains the script to train and validate the model defined.
+* **utils:** This file contains some utility methods.
 
 ## Model specifications and results
 
-The architecture of this project are composed by two parts. The first one is a pretrained model and the second one is a custom architecture, both based on _Mobilnet_.
+The architecture of this project is composed of two parts. The first one is a pre-trained model and the second one is a custom architecture, both based on _Mobilnet_.
 
-**So, Why I use a pretrained model?** Because, the pre-trained models have their parameters more adjusted and the filters they have learned are more polished, with which, we save the process of teaching the network those filters and the only thing that we should focus on is to adapt the other parameters to the specifications of our data set.
+**So, Why I use a pre-trained model?** Because the pre-trained models have their parameters more adjusted and the filters they have learned are more polished, in consequence, we can avoid the process of teaching the network those filters and the only thing that we should focus on is to adjust the other parameters to the specifications of our data set.
 
-**How are the specifications of pre-trained model?** The pretrained model is an instance of MobilNet network, trained with imagenet weigths this architecture is provided by Keras API. For this model, I freeze all trainable parameters for get the best feature maps of my dataset.
+**How are the specifications of the pre-trained model?** The pre-trained model is an instance of MobilNet network, trained with imagenet weights this architecture is provided by Keras API. For this model, I freeze all trainable parameters to get the best feature maps of my dataset.
 
-**How is the architecture of custom model?** The custom model is a tiny mobilnet architecture, with 10 layers, one convolutional layer, one dense layer, four depthwise convolutional layers and four pointwise layers. All layer was trained with rectifier linear function and batch normalization before each activation, except the last layer which have softmax activation.
+**How is the architecture of the custom model?** The custom model is a tiny mobilnet architecture, with 10 layers, one convolutional layer, one dense layer, four depthwise convolutional layers, and four pointwise layers. All layer was trained with rectifier linear function and batch normalization before each activation, except the last layer which has softmax activation.
 
-**How is the complete model trained?** You can see the complete list of hyperparameters that I use for train the model in the _config.yml_ file. The more relevant parameters are.
+**How is the complete model trained?** You can see the complete list of hyperparameters that I use for train the model in the  `config.yml` file. The more relevant parameters are.
 * batch_size: 10
 * depth_multiplier: 1
 * learning_rate: 0.001
@@ -65,11 +65,11 @@ The architecture of this project are composed by two parts. The first one is a p
 * width_multiplier: 1
 * optimizer: Adam
 
-**Bonus** The full architecture of _Mobilnet_ (V1) is available in the _data.py_ file.If you want to try this network, you should change the following code.
+**Bonus** The full architecture of _Mobilnet_ (V1) is available in the `data.py` file. If you want to try this network, you should change the following code.
 
 * **_In trainer.py file_**:
 
-Change this lines 
+Change these lines 
 
 ```
 mobilnet_tiny = model.MobilNet_Architecture_Tiny(........
@@ -93,21 +93,21 @@ net = mobilnet
 
 ### Results
 * **Training and Validation Accuracy**
-![Training and Validation Accuracy](pics/Training_Validation_Accuracy.PNG)
+![Training and Validation Accuracy](assets/Training_Validation_Accuracy.PNG)
 
 * **Training and Validation Loss**
-![Training and Validation Loss](pics/Training_Validation_Loss.PNG)
+![Training and Validation Loss](assets/Training_Validation_Loss.PNG)
 
 * **Training and Validation F1 Score**
-![Training and Validation F1 Score](pics/Epoch_F1_Training_Validation.PNG)
+![Training and Validation F1 Score](assets/Epoch_F1_Training_Validation.PNG)
 
 * **Predictions in test set**
-![Predictions in test set](pics/Predictions_Test_Set.PNG)
+![Predictions in test set](assets/Predictions_Test_Set.PNG)
 
 
 ## How to use
 
-This project are developed in Python 3 enviroment, is advisable install the following dependencies:
+This project is developed in Python 3 environment, you must install the following dependencies:
 
 ```
 - Keras==2.2.4
@@ -122,7 +122,7 @@ This project are developed in Python 3 enviroment, is advisable install the foll
 - wget==3.2
 ```
 
-First of all we need to clone the repository.
+First of all, we need to clone the repository.
 ```
 git clone https://github.com/SebasPelaez/dog-breed-classification-mobilnet.git
 ```
@@ -133,16 +133,16 @@ cd dog-breed-classification-mobilnet
 python preprocessing.py
 ```
 
-This script execute 4 functions.
+This script executes 4 functions.
 
-1. **download_data:** Creates the data directory and extract there the compress file with the Standford Dog Dataset.
+1. **download_data:** Creates the data directory and extract there the compressed file with the Standford Dog Dataset.
 2. **extract_data:** Decompress the downloaded file.
 3. **make_id_label_map:** Build a dictionary with the name of the dog's breed and a number representing the class, then save it in a .json file
 4. **split_data:** Creates 3 different .txt files with the classes distribution. One file for training, one for validation and one for test the model.
 
-At this point we have the enviroment ready to train the model.
+At this point, we have the environment ready to train the model.
 
-If we only want to use the predictor, we should download the pretrained weights from [here](https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=1) and then extract the .rar file in the project root folder.
+If we just want to use the predictor, we should download the pre-trained weights from [this link](https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=1) and then extract the .rar file in the project root folder.
 
 The project structure should be like that.
 
@@ -161,9 +161,9 @@ The project structure should be like that.
 .
 ```
 
-If you don't want download the pre-trained weights because you want to train the model from the start, you should execute this code.
+If you don't want to download the pre-trained weights because you want to train the model from scratch, you should execute this code.
 
-_If you download the weights and extract in the root folder before run that, I recommend you to delete checkpoints folder and then run this line._
+_If you download the weights and extract it in the root folder, I recommend you to delete checkpoints folder and then run this line._
 
 ```
 python trainer.py -c config.yml
@@ -181,14 +181,14 @@ Following the previous steps, we are ready to predict dog breeds. For do that yo
 
 ## TODO
 
-- [x] Create script for configure the enviroment.
+- [x] Create a script to configure the environment.
 - [x] Build Mobilnet architecture and _model fn_ function.
-- [x] Create data managment and _input fn_ function.
+- [x] Create data management and _input fn_ function.
 - [x] Code wrap function to execute the train and test process.
 - [x] Make Jupyter Notebooks with the unit test of some script functions.
-- [x] Upload pretrained weights.
+- [x] Upload pre-trained weights.
 - [x] Show metrics and model results.
 - [x] Create a Jupyter Notebook with the test of predictions script.
 - [x] Make predictions with different dog images.
 
-_Feel free to make me comments, corrections or advices_
+_Feel free to make my comments, corrections or advice_
