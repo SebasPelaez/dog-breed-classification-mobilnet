@@ -142,7 +142,7 @@ This script executes 4 functions.
 
 At this point, we have the environment ready to train the model.
 
-If we just want to use the predictor, we should download the pre-trained weights from [this link](https://www.dropbox.com/s/lfccfplsi0ry2rf/dog_breed_classification_mobilnet_checkpoints.rar?dl=1) and then extract the .rar file in the project root folder.
+If we just want to use the predictor, we should download the pre-trained weights from [this link](https://www.dropbox.com/s/00rzhistyuyh3dt/dog_breed_classification_mobilnet_full.rar?dl=1) and then extract the .rar file in the project root folder.
 
 The project structure should be like that.
 
