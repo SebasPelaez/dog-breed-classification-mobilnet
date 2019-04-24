@@ -31,8 +31,8 @@ dropout_rate: 0.5
 learning_rate: 0.001
 loss: 'sparse_categorical_crossentropy'
 max_steps: 50000
-num_classes: 10
-num_epochs: 45
+num_classes: 120
+num_epochs: 125
 regularization_rate: 0.001
 tiny_model: True
 width_multiplier: 1
