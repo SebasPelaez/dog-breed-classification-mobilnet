@@ -55,10 +55,8 @@ def train_model(params):
     validation_steps=validation_steps,
     callbacks=[cp_callback, tb_callback])
 
-  # Save it under the form of a json file
   with open(os.path.join(params['model_dir'], 'history.json'),'w') as file:
     json.dump(history.history,file)
-
 
 def f1_score(y_true, y_pred):
   def recall(y_true, y_pred):

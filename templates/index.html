@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta charset=utf-8 />
+    <title>Dog breed classification</title>
+  </head>
+  
+  <body>
+ 
+    <h1>Dog Breed Classification</h1>
+    
+    <input id="file-picker" type="file" accept="image/*">
+    
+    <div id="image-container">
+      <img id="image" src="#" alt=""/>
+    </div>
+
+    <a href="#" id="myButton"><span style=" font-weight: 400; font-family: 'Open Sans', Helvetica;	"> Predict </span></a>
+
+    <div >
+      <h1 id="result" style="margin-right:20px; margin-top:300px;float:left;"><span> </span></h1>
+    </div>
+  </body>
+
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+  <script>
+    let base64Image;
+
+    $('#file-picker').change(function(){
+      let reader = new FileReader();
+      reader.onload = function(e){
+        let dataUrl = reader.result;
+        $('#image').attr('src', e.target.result);
+        base64Image = dataUrl.replace("data:image/png;base64,","");
+        console.log(base64Image)
+      }
+      reader.readAsDataURL($('#file-picker')[0].files[0]);
+    });
+
+    $('#myButton').click(function(event){
+
+      var url = {{ request.script_root|tojson|safe }} + "/predict/";
+      let message = {
+        image: base64Image
+      }
+      console.log(message)
+      $.post(url,JSON.stringify(message),function(response){
+        $('#result').text(' Predicted Output: ' + response.prediction.pred);
+      });
+    });
+
+  </script>
+
+</html>
