@@ -9,8 +9,6 @@ import data
 import model
 import utils
 
-tf.logging.set_verbosity(tf.logging.INFO)
-
 def train_model(params):
 
   train_generator = data.data_generator(params, mode='training')
@@ -100,8 +98,6 @@ if __name__ == '__main__':
   )
   
   args = parser.parse_args()
-  tf.logging.set_verbosity(args.verbosity)
 
   params = utils.yaml_to_dict(args.config)
-  tf.logging.info("Using parameters: {}".format(params))
   train_model(params)
